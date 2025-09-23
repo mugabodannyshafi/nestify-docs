@@ -1,6 +1,6 @@
 # Nestify Docs
 
-Documentation site for **Nestify** CLI tool. Built with Next.js and Tailwind CSS.
+Documentation site for **Nestify** CLI tool. Built with React and Tailwind CSS.
 
 ## Quick Start
 
