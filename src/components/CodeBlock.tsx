@@ -1,22 +1,19 @@
 import { useState } from "react";
-import { Copy, Check, Terminal, Code2, FileCode2 } from "lucide-react";
+import { Copy, Check, Terminal, Code2, FileJson } from "lucide-react";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface CodeBlockProps {
   code: string;
   language?: string;
-  showCopy?: boolean;
   title?: string;
   showLineNumbers?: boolean;
-  highlightLines?: number[];
 }
 
-export function CodeBlock({ 
-  code, 
-  language = "bash", 
-  showCopy = true, 
+export function CodeBlock({
+  code,
+  language = "bash",
   title,
   showLineNumbers = false,
-  highlightLines = []
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
@@ -26,146 +23,107 @@ export function CodeBlock({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy:", err);
     }
   };
 
-  const lines = code.split('\n');
-  
-  // Get appropriate icon based on language
-  const getLanguageIcon = () => {
-    switch(language) {
-      case 'bash':
-      case 'shell':
-      case 'sh':
+  // Simple icon map for NestJS-related languages
+  const getIcon = () => {
+    switch (language) {
+      case "bash":
+      case "shell":
         return <Terminal className="h-3.5 w-3.5" />;
-      case 'typescript':
-      case 'javascript':
-      case 'tsx':
-      case 'jsx':
-        return <Code2 className="h-3.5 w-3.5" />;
+      case "json":
+        return <FileJson className="h-3.5 w-3.5" />;
       default:
-        return <FileCode2 className="h-3.5 w-3.5" />;
+        return <Code2 className="h-3.5 w-3.5" />;
     }
-  };
-
-  // Get language display name
-  const getLanguageDisplay = () => {
-    const langMap: { [key: string]: string } = {
-      'bash': 'bash',
-      'shell': 'shell',
-      'sh': 'shell',
-      'typescript': 'TypeScript',
-      'javascript': 'JavaScript',
-      'tsx': 'TSX',
-      'jsx': 'JSX',
-      'json': 'JSON',
-      'yaml': 'YAML',
-      'docker': 'Dockerfile',
-    };
-    return langMap[language] || language;
   };
 
   return (
-    <div className="relative group rounded-lg overflow-hidden border border-border/50 transition-all duration-200 hover:border-border">
-      {/* Header Bar */}
-      <div className="bg-muted/30 border-b border-border/50 flex items-center justify-between px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          {/* Traffic Lights (decorative) */}
-          <div className="flex items-center gap-1.5 mr-3">
-            <div className="w-3 h-3 rounded-full bg-red-500/20 group-hover:bg-red-500/40 transition-colors" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/20 group-hover:bg-yellow-500/40 transition-colors" />
-            <div className="w-3 h-3 rounded-full bg-green-500/20 group-hover:bg-green-500/40 transition-colors" />
+    <div
+      className="rounded-lg border overflow-hidden"
+      style={{
+        backgroundColor: "#1e1e1e",
+        borderColor: "#2d2d2d",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-2.5"
+        style={{
+          backgroundColor: "#252526",
+          borderBottom: "1px solid #2d2d2d",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-gray-400">
+            {getIcon()}
+            <span className="text-xs font-medium uppercase tracking-wide">
+              {language}
+            </span>
           </div>
-          
-          {/* Language Badge */}
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            {getLanguageIcon()}
-            <span className="text-xs font-medium">{getLanguageDisplay()}</span>
-          </div>
-          
-          {/* Title */}
-          {title && (
-            <>
-              <div className="w-px h-4 bg-border/50" />
-              <span className="text-sm font-medium text-foreground/80">{title}</span>
-            </>
-          )}
+          {title && <span className="text-xs text-gray-500">{title}</span>}
         </div>
 
-        {/* Copy Button */}
-        {showCopy && (
-          <button
-            onClick={copyToClipboard}
-            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 opacity-0 group-hover:opacity-100"
-            title="Copy to clipboard"
-          >
-            {copied ? (
-              <>
-                <Check className="h-3.5 w-3.5" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-3.5 w-3.5" />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
-        )}
+        <button
+          onClick={copyToClipboard}
+          className="flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors"
+          style={{
+            backgroundColor: copied ? "#2ea04326" : "transparent",
+            color: copied ? "#7ee83f" : "#8b949e",
+          }}
+        >
+          {copied ? (
+            <Check className="h-3.5 w-3.5" />
+          ) : (
+            <Copy className="h-3.5 w-3.5" />
+          )}
+          {copied ? "Copied" : "Copy"}
+        </button>
       </div>
 
-      {/* Code Content */}
-      <div className="bg-code-bg/50 backdrop-blur-sm">
-        <div className="flex">
-          {/* Line Numbers */}
-          {showLineNumbers && (
-            <div className="select-none border-r border-border/30 px-4 py-4 text-right">
-              {lines.map((_, index) => (
-                <div
-                  key={index}
-                  className={`text-xs leading-6 ${
-                    highlightLines.includes(index + 1)
-                      ? 'text-foreground/70 font-semibold'
-                      : 'text-muted-foreground/50'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Code */}
-          <div className="flex-1 overflow-x-auto">
-            <pre className="p-4 text-sm leading-6">
-              {showLineNumbers ? (
-                lines.map((line, index) => (
+      {/* Code */}
+      <Highlight theme={themes.vsDark} code={code.trim()} language={language}>
+        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+          <pre
+            className={`${className} p-4 text-sm overflow-x-auto`}
+            style={{
+              ...style,
+              margin: 0,
+              backgroundColor: "#1e1e1e",
+            }}
+          >
+            {showLineNumbers
+              ? tokens.map((line, i) => (
                   <div
-                    key={index}
-                    className={`${
-                      highlightLines.includes(index + 1)
-                        ? 'bg-accent/20 -mx-4 px-4 border-l-2 border-primary'
-                        : ''
-                    }`}
+                    key={i}
+                    {...getLineProps({ line, key: i })}
+                    className="table-row"
                   >
-                    <code className={`language-${language}`}>
-                      {line || '\n'}
-                    </code>
+                    <span
+                      className="table-cell pr-4 text-right select-none"
+                      style={{ color: "#5a5a5a", minWidth: "2em" }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="table-cell">
+                      {line.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token, key })} />
+                      ))}
+                    </span>
                   </div>
                 ))
-              ) : (
-                <code className={`language-${language} text-foreground/90`}>
-                  {code}
-                </code>
-              )}
-            </pre>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Gradient (subtle) */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+              : tokens.map((line, i) => (
+                  <div key={i} {...getLineProps({ line, key: i })}>
+                    {line.map((token, key) => (
+                      <span key={key} {...getTokenProps({ token, key })} />
+                    ))}
+                  </div>
+                ))}
+          </pre>
+        )}
+      </Highlight>
     </div>
   );
 }
