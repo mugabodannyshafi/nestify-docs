@@ -9,43 +9,58 @@ export default function ProjectStructure() {
         Project Structure
       </h1>
       <p className="text-xl text-muted-foreground mb-8">
-        Understanding the generated project structure and file organization in Nestify projects.
+        Understanding the generated project structure and file organization in
+        Nestify projects.
       </p>
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Overview</h2>
         <p className="mb-4">
-          Nestify generates a well-organized project structure that follows NestJS best practices 
-          and includes all necessary configuration files for a complete development environment.
+          Nestify generates a well-organized project structure that follows
+          NestJS best practices and includes all necessary configuration files
+          for a complete development environment.
         </p>
-        
+
         <CodeBlock
+          language="plaintext"
           code={`my-awesome-app/
 ├── src/                        # Application source code
 │   ├── main.ts                 # Application entry point
 │   ├── app.module.ts           # Root application module
 │   ├── app.controller.ts       # Main controller with health checks
+│   ├── app.controller.spec.ts  # Main controller unit tests
 │   ├── app.service.ts          # Main service
-│   └── *.spec.ts              # Unit tests
+│   ├── app.service.spec.ts     # Main service unit tests
+│   ├── common/                 # Common utilities and shared code
+│   │   ├── decorators/         # Custom decorators
+│   │   ├── enums/              # Application enums
+│   │   ├── exceptions/         # Custom exceptions
+│   │   ├── filters/            # Exception filters
+│   │   ├── guards/             # Route guards
+│   │   ├── interceptors/       # Request/response interceptors
+│   │   ├── middleware/         # Custom middleware
+│   │   └── pipes/              # Validation pipes
+│   ├── config/                 # Configuration files
+│   ├── modules/                # Feature modules
+│   └── shared/                 # Shared services and utilities
+│       ├── services/           # Shared services
+│       └── utils/              # Utility functions
 ├── test/                       # End-to-end tests
 │   ├── app.e2e-spec.ts        # E2E test suite
 │   └── jest-e2e.json          # E2E test configuration
-├── .github/                    # GitHub configuration
-│   └── workflows/
-│       └── tests.yml           # CI/CD pipeline
-├── .env                        # Development environment variables
+├── .dockerignore              # Docker ignore rules
 ├── .env.example               # Example environment file
-├── .env.testing               # Testing environment variables
+├── .env.testing.example       # Example testing environment file
 ├── docker-compose.yml         # Docker services configuration
 ├── Dockerfile                 # Application container definition
 ├── package.json              # Dependencies and scripts
+├── pnpm-lock.yaml            # PNPM lock file
 ├── tsconfig.json            # TypeScript configuration
+├── tsconfig.build.json      # TypeScript build configuration
 ├── eslint.config.mjs       # ESLint configuration
 ├── .prettierrc            # Prettier configuration
 ├── .gitignore            # Git ignore rules
-└── README.md            # Project documentation`}
-          language="text"
-          title="Complete Project Structure"
+└── README.md  `}
         />
       </div>
 
@@ -55,43 +70,55 @@ export default function ProjectStructure() {
           Source Directory (src/)
         </h2>
         <p className="mb-4">
-          The <code className="docs-inline-code">src/</code> directory contains your application's source code:
+          The <code className="docs-inline-code">src/</code> directory contains
+          your application's source code:
         </p>
 
         <div className="space-y-4">
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">main.ts - Application Entry Point</h3>
+            <h3 className="font-semibold mb-2">
+              main.ts - Application Entry Point
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              The main entry point that bootstraps your NestJS application with proper configuration.
+              The main entry point that bootstraps your NestJS application with
+              proper configuration.
             </p>
             <CodeBlock
+              language="typescript"
               code={`import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe());
-  
-  // API prefix
-  app.setGlobalPrefix(process.env.API_PREFIX || 'api');
-  
-  // Swagger documentation (if enabled)
+
+  // Enable CORS
+  app.enableCors();
+
+  // Set global prefix
+  app.setGlobalPrefix('api');
+
+  // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('My Awesome App')
-    .setDescription('API documentation')
-    .setVersion(process.env.API_VERSION || '1.0')
+    .setTitle('API Documentation')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addTag('api')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  
-  await app.listen(process.env.APP_PORT || 3000);
+
+  // Server port
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+
+  console.log(\`Application is running on: http://localhost:\${port}\`);
+  console.log(\`Swagger docs available at: http://localhost:\${port}/api\`);
 }
-bootstrap();`}
-              language="typescript"
+
+bootstrap();
+`}
             />
           </div>
 
@@ -102,53 +129,49 @@ bootstrap();`}
             </p>
             <CodeBlock
               code={`import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
-    }),
-    // Add your feature modules here
-  ],
+  imports: [],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}`}
+export class AppModule {}
+`}
               language="typescript"
             />
           </div>
 
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">app.controller.ts - Main Controller</h3>
+            <h3 className="font-semibold mb-2">
+              app.controller.ts - Main Controller
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
               The main controller with health check endpoints.
             </p>
             <CodeBlock
               code={`import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('Health')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Health check' })
-  getHealth() {
-    return this.appService.getHealth();
+  getHello(): string {
+    return this.appService.getHello();
   }
 
-  @Get('version')
-  @ApiOperation({ summary: 'Get application version' })
-  getVersion() {
-    return this.appService.getVersion();
+  @Get('health')
+  getHealth(): object {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    };
   }
-}`}
+}
+`}
               language="typescript"
             />
           </div>
@@ -161,12 +184,15 @@ export class AppController {
           Configuration Files
         </h2>
         <p className="mb-4">
-          Nestify generates several configuration files to ensure your project follows best practices:
+          Nestify generates several configuration files to ensure your project
+          follows best practices:
         </p>
 
         <div className="space-y-4">
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">package.json - Dependencies & Scripts</h3>
+            <h3 className="font-semibold mb-2">
+              package.json - Dependencies & Scripts
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
               Contains all dependencies and useful scripts for development.
             </p>
@@ -180,31 +206,45 @@ export class AppController {
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>start:dev</code></td>
+                    <td>
+                      <code>start:dev</code>
+                    </td>
                     <td>Development server with hot reload</td>
                   </tr>
                   <tr>
-                    <td><code>start:debug</code></td>
+                    <td>
+                      <code>start:debug</code>
+                    </td>
                     <td>Debug mode for development</td>
                   </tr>
                   <tr>
-                    <td><code>build</code></td>
+                    <td>
+                      <code>build</code>
+                    </td>
                     <td>Build for production</td>
                   </tr>
                   <tr>
-                    <td><code>test</code></td>
+                    <td>
+                      <code>test</code>
+                    </td>
                     <td>Run unit tests</td>
                   </tr>
                   <tr>
-                    <td><code>test:e2e</code></td>
+                    <td>
+                      <code>test:e2e</code>
+                    </td>
                     <td>Run end-to-end tests</td>
                   </tr>
                   <tr>
-                    <td><code>lint</code></td>
+                    <td>
+                      <code>lint</code>
+                    </td>
                     <td>Run ESLint</td>
                   </tr>
                   <tr>
-                    <td><code>format</code></td>
+                    <td>
+                      <code>format</code>
+                    </td>
                     <td>Format with Prettier</td>
                   </tr>
                 </tbody>
@@ -213,9 +253,12 @@ export class AppController {
           </div>
 
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">tsconfig.json - TypeScript Configuration</h3>
+            <h3 className="font-semibold mb-2">
+              tsconfig.json - TypeScript Configuration
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Optimized TypeScript configuration with path aliases and strict settings.
+              Optimized TypeScript configuration with path aliases and strict
+              settings.
             </p>
             <CodeBlock
               code={`{
@@ -226,7 +269,7 @@ export class AppController {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -236,12 +279,7 @@ export class AppController {
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@/*": ["src/*"],
-      "@/common/*": ["src/common/*"],
-      "@/modules/*": ["src/modules/*"]
-    }
+    "noFallthroughCasesInSwitch": false
   }
 }`}
               language="json"
@@ -249,39 +287,61 @@ export class AppController {
           </div>
 
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">eslint.config.mjs - Code Quality</h3>
+            <h3 className="font-semibold mb-2">
+              eslint.config.mjs - Code Quality
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
               ESLint configuration with NestJS and TypeScript rules.
             </p>
             <CodeBlock
-              code={`import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
-import tsParser from '@typescript-eslint/parser';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
+              code={`// @ts-check
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import prettierConfig from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-  recommendedConfig: js.configs.recommended,
-});
-
-export default [
-  js.configs.recommended,
-  ...compat.extends('@nestjs/eslint-config'),
+export default tseslint.config(
   {
-    files: ['**/*.ts'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '.prettierrc', 'eslint.config.mjs'],
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  prettierConfig,
+  {
+    plugins: {
+      prettier: prettierPlugin,
+    },
     languageOptions: {
-      parser: tsParser,
+      ecmaVersion: 2021,
+      sourceType: 'module',
       parserOptions: {
-        project: 'tsconfig.json',
+        project: true,
         tsconfigRootDir: import.meta.dirname,
-        sourceType: 'module',
       },
     },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
+    rules: {
+      // TypeScript specific rules
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_' 
+      }],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-empty-interface': 'off',
+      
+      // Prettier integration
+      'prettier/prettier': ['error', {
+        endOfLine: 'auto',
+      }],
+      
+      // General rules
+      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     },
   },
-];`}
+);`}
               language="javascript"
             />
           </div>
@@ -291,14 +351,18 @@ export default [
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Testing Structure</h2>
         <p className="mb-4">
-          Nestify sets up a comprehensive testing environment with both unit and e2e tests:
+          Nestify sets up a comprehensive testing environment with both unit and
+          e2e tests:
         </p>
 
         <div className="space-y-4">
           <div className="docs-card">
-            <h3 className="font-semibold mb-2">Unit Tests (*.spec.ts)</h3>
+            <h3 className="font-semibold mb-2">
+              Unit Tests (app.controller.spec.ts)
+            </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Unit tests are placed alongside source files with the <code>.spec.ts</code> extension.
+              Unit tests are placed alongside source files with the{" "}
+              <code>.spec.ts</code> extension.
             </p>
             <CodeBlock
               code={`import { Test, TestingModule } from '@nestjs/testing';
@@ -307,25 +371,94 @@ import { AppService } from './app.service';
 
 describe('AppController', () => {
   let appController: AppController;
+  let appService: AppService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    appController = module.get<AppController>(AppController);
+    appService = module.get<AppService>(AppService);
   });
 
-  describe('root', () => {
-    it('should return health status', () => {
-      expect(appController.getHealth()).toEqual({
-        status: 'ok',
-        timestamp: expect.any(String),
-      });
+  describe('getHello', () => {
+    it('should return "Hello World!"', () => {
+      const result = 'Hello World!';
+      jest.spyOn(appService, 'getHello').mockImplementation(() => result);
+
+      expect(appController.getHello()).toBe(result);
+      expect(appService.getHello).toHaveBeenCalled();
     });
   });
-});`}
+
+  describe('getHealth', () => {
+    it('should return health status', () => {
+      const result = appController.getHealth();
+
+      expect(result).toHaveProperty('status', 'ok');
+      expect(result).toHaveProperty('timestamp');
+    });
+
+    it('should return a valid ISO timestamp', () => {
+      const result = appController.getHealth() as { status: string; timestamp: string };
+      const timestamp = new Date(result.timestamp);
+
+      expect(timestamp).toBeInstanceOf(Date);
+      expect(isNaN(timestamp.getTime())).toBe(false);
+    });
+  });
+});
+`}
+              language="typescript"
+            />
+          </div>
+
+          <div className="docs-card">
+            <h3 className="font-semibold mb-2">
+              Unit Tests (app.service.spec.ts)
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Unit tests are placed alongside source files with the{" "}
+              <code>.spec.ts</code> extension.
+            </p>
+            <CodeBlock
+              code={`import { Test, TestingModule } from '@nestjs/testing';
+import { AppService } from './app.service';
+
+describe('AppService', () => {
+  let service: AppService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [AppService],
+    }).compile();
+
+    service = module.get<AppService>(AppService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('getHello', () => {
+    it('should return welcome message', () => {
+      expect(service.getHello()).toBe('Welcome to your NestJS application built with nestify! 🔨');
+    });
+
+    it('should return a string', () => {
+      const result = service.getHello();
+      expect(typeof result).toBe('string');
+    });
+
+    it('should contain nestify', () => {
+      const result = service.getHello();
+      expect(result).toContain('nestify');
+    });
+  });
+});
+`}
               language="typescript"
             />
           </div>
@@ -353,15 +486,29 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
+      .expect('Welcome to your NestJS application built with nestify! 🔨');
+  });
+
+  it('/health (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/health')
+      .expect(200)
       .expect((res) => {
         expect(res.body).toHaveProperty('status', 'ok');
+        expect(res.body).toHaveProperty('timestamp');
+        expect(new Date(res.body.timestamp)).toBeInstanceOf(Date);
       });
   });
-});`}
+});
+`}
               language="typescript"
             />
           </div>
@@ -374,21 +521,24 @@ describe('AppController (e2e)', () => {
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Module Organization</h3>
             <p className="text-sm text-muted-foreground">
-              Organize related functionality into feature modules within the <code>src/</code> directory.
+              Organize related functionality into feature modules within the{" "}
+              <code>src/</code> directory.
             </p>
           </div>
-          
+
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Test Co-location</h3>
             <p className="text-sm text-muted-foreground">
-              Keep unit tests close to source files for easier maintenance and better organization.
+              Keep unit tests close to source files for easier maintenance and
+              better organization.
             </p>
           </div>
-          
+
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Configuration Management</h3>
             <p className="text-sm text-muted-foreground">
-              Use environment variables for configuration and keep sensitive data in <code>.env</code> files.
+              Use environment variables for configuration and keep sensitive
+              data in <code>.env</code> files.
             </p>
           </div>
         </div>

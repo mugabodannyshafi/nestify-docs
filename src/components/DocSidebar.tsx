@@ -1,16 +1,16 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  Home, 
-  Download, 
-  Rocket, 
-  FolderTree, 
-  Container, 
-  TestTube, 
-  Settings, 
+import {
+  Home,
+  Download,
+  Rocket,
+  FolderTree,
+  Container,
+  TestTube,
+  Settings,
   Terminal,
   Users,
   Scale,
-  Map
+  Map,
 } from "lucide-react";
 
 const navigation = [
@@ -20,16 +20,20 @@ const navigation = [
       { title: "Introduction", href: "/", icon: Home },
       { title: "Installation", href: "/installation", icon: Download },
       { title: "Quick Start", href: "/quick-start", icon: Rocket },
-    ]
+    ],
   },
   {
     title: "Guide",
     items: [
-      { title: "Project Structure", href: "/project-structure", icon: FolderTree },
+      {
+        title: "Project Structure",
+        href: "/project-structure",
+        icon: FolderTree,
+      },
       { title: "Docker Configuration", href: "/docker", icon: Container },
       { title: "Testing", href: "/testing", icon: TestTube },
       { title: "Environment Variables", href: "/environment", icon: Settings },
-    ]
+    ],
   },
   {
     title: "Reference",
@@ -37,9 +41,8 @@ const navigation = [
       { title: "Commands", href: "/commands", icon: Terminal },
       { title: "Contributing", href: "/contributing", icon: Users },
       { title: "Roadmap", href: "/roadmap", icon: Map },
-      { title: "License", href: "/license", icon: Scale },
-    ]
-  }
+    ],
+  },
 ];
 
 export function DocSidebar() {

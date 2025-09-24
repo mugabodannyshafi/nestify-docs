@@ -41,7 +41,6 @@ const App = () => (
               <Route path="commands" element={<Commands />} />
               <Route path="contributing" element={<Contributing />} />
               <Route path="roadmap" element={<Roadmap />} />
-              <Route path="license" element={<License />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
