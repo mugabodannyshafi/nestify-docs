@@ -9,15 +9,17 @@ export default function Docker() {
         Docker Configuration
       </h1>
       <p className="text-xl text-muted-foreground mb-8">
-        Complete Docker setup with multi-service development environment including databases and Redis.
+        Complete Docker setup with multi-service development environment
+        including databases and Redis.
       </p>
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Overview</h2>
         <p className="mb-4">
-          When Docker support is enabled, Nestify configures a complete development environment with:
+          When Docker support is enabled, Nestify configures a complete
+          development environment with:
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">Application Container</h3>
@@ -25,21 +27,21 @@ export default function Docker() {
               Your NestJS application running in a containerized environment
             </p>
           </div>
-          
+
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">Database Service</h3>
             <p className="text-sm text-muted-foreground">
               MySQL, PostgreSQL, or MongoDB with proper configuration
             </p>
           </div>
-          
+
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">Redis Cache</h3>
             <p className="text-sm text-muted-foreground">
               Redis service for caching and session storage
             </p>
           </div>
-          
+
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">Test Environment</h3>
             <p className="text-sm text-muted-foreground">
@@ -61,130 +63,142 @@ export default function Docker() {
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-semibold mb-2">Start All Services</h3>
-            <CodeBlock
-              code="docker-compose up"
-              language="bash"
-            />
+            <CodeBlock code="docker-compose up" language="bash" />
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">Start in Detached Mode</h3>
-            <CodeBlock
-              code="docker-compose up -d"
-              language="bash"
-            />
+            <h3 className="text-lg font-semibold mb-2">
+              Start in Detached Mode
+            </h3>
+            <CodeBlock code="docker-compose up -d" language="bash" />
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Stop All Services</h3>
-            <CodeBlock
-              code="docker-compose down"
-              language="bash"
-            />
+            <CodeBlock code="docker-compose down" language="bash" />
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Rebuild and Start</h3>
-            <CodeBlock
-              code="docker-compose up --build"
-              language="bash"
-            />
+            <CodeBlock code="docker-compose up --build" language="bash" />
           </div>
         </div>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibred mb-4">Docker Compose Configuration</h2>
+        <h2 className="text-2xl font-semibred mb-4">
+          Docker Compose Configuration
+        </h2>
         <p className="mb-4">
-          The generated <code className="docs-inline-code">docker-compose.yml</code> includes all necessary services:
+          The generated{" "}
+          <code className="docs-inline-code">docker-compose.yml</code> includes
+          all necessary services:
         </p>
-        
-        <CodeBlock
-          code={`version: '3.8'
 
-services:
-  # Main application
+        <CodeBlock
+          code={`services:
   app:
     build: .
+    restart: always
     ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=db
-      - REDIS_HOST=redis
+      - '\${APP_PORT}:3000'
+    platform: linux/amd64
     volumes:
-      - .:/app
-      - /app/node_modules
+      - '.:/home/app'
+    command: bash -c "rm -rf node_modules dist && npm install && npm run start:dev"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - app-network
+      - app-net
 
-  # Database service (PostgreSQL example)
   db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: my_awesome_app
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_password_123
+    image: 'mysql/mysql-server:8.0'
     ports:
-      - "5433:5432"
+      - '\${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '\${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '\${DB_DATABASE}'
+      MYSQL_USER: '\${DB_USERNAME}'
+      MYSQL_PASSWORD: '\${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app_user -d my_awesome_app"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - 'app-mysql:/var/lib/mysql'
     networks:
-      - app-network
+      - app-net
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-p\${DB_PASSWORD}']
+      retries: 10
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
 
-  # Test database
   db-test:
-    image: postgres:15
+    image: 'mysql/mysql-server:8.0'
     environment:
-      POSTGRES_DB: my_awesome_app_test
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_password_123
-    ports:
-      - "5434:5432"
+      MYSQL_ROOT_PASSWORD: '\${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '\${DB_DATABASE}_test'
+      MYSQL_USER: '\${DB_USERNAME}'
+      MYSQL_PASSWORD: '\${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
     volumes:
-      - postgres_test_data:/var/lib/postgresql/data
+      - 'app-mysql-testing:/var/lib/mysql'
     networks:
-      - app-network
-
-  # Redis service
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+      - app-net
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - app-network
+      test: ['CMD', 'mysqladmin', 'ping', '-p\${DB_PASSWORD}']
+      retries: 10
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
 
-  # Test Redis
-  redis-test:
-    image: redis:7-alpine
+  redis:
+    image: 'redis:alpine'
     ports:
-      - "6380:6379"
+      - '\${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'app-redis:/data'
     networks:
-      - app-network
+      - app-net
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
 
-volumes:
-  postgres_data:
-  postgres_test_data:
-  redis_data:
+  redis-test:
+    image: 'redis:alpine'
+    volumes:
+      - 'app-redis-testing:/data'
+    networks:
+      - app-net
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
 
 networks:
-  app-network:
-    driver: bridge`}
+  app-net:
+    driver: bridge
+
+volumes:
+  app-mysql:
+    driver: local
+  app-mysql-testing:
+    driver: local
+  app-redis:
+    driver: local
+  app-redis-testing:
+    driver: local`}
           language="yaml"
           title="docker-compose.yml"
         />
@@ -203,29 +217,38 @@ networks:
           <div className="docs-card">
             <h3 className="font-semibold mb-3">PostgreSQL Configuration</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Production-ready PostgreSQL setup with health checks and proper user management.
+              Production-ready PostgreSQL setup with health checks and proper
+              user management.
             </p>
             <CodeBlock
               code={`db:
-  image: postgres:15
-  environment:
-    POSTGRES_DB: my_awesome_app
-    POSTGRES_USER: app_user
-    POSTGRES_PASSWORD: app_password_123
+  image: 'postgres:16-alpine'
   ports:
-    - "5433:5432"  # Avoids conflicts with local PostgreSQL
+    - '\${FORWARD_DB_PORT:-5432}:5432'
+  environment:
+    POSTGRES_USER: '\${DB_USERNAME}'
+    POSTGRES_PASSWORD: '\${DB_PASSWORD}'
+    POSTGRES_DB: '\${DB_DATABASE}'
   volumes:
-    - postgres_data:/var/lib/postgresql/data
+    - 'app-postgres:/var/lib/postgresql/data'
+  networks:
+    - app-net
   healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U app_user -d my_awesome_app"]
-    interval: 30s
-    timeout: 10s
-    retries: 3`}
+    test: ['CMD-SHELL', 'pg_isready -U \${DB_USERNAME}']
+    interval: 5s
+    timeout: 5s
+    retries: 10
+    start_period: 5s`}
               language="yaml"
+              title="docker-compose.yml"
             />
+
             <div className="mt-3 p-3 bg-muted rounded-lg">
               <p className="text-sm">
-                <strong>Connection String:</strong> <code>postgresql://app_user:app_password_123@localhost:5433/my_awesome_app</code>
+                <strong>Connection String:</strong>{" "}
+                <code>
+                  postgresql://app_user:app_password_123@localhost:5433/my_awesome_app
+                </code>
               </p>
             </div>
           </div>
@@ -233,31 +256,41 @@ networks:
           <div className="docs-card">
             <h3 className="font-semibold mb-3">MySQL Configuration</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              MySQL 8.0 setup with automatic database creation and character set configuration.
+              MySQL 8.0 setup with automatic database creation and character set
+              configuration.
             </p>
             <CodeBlock
               code={`db:
-  image: mysql:8.0
-  environment:
-    MYSQL_ROOT_PASSWORD: root_password_123
-    MYSQL_DATABASE: my_awesome_app
-    MYSQL_USER: app_user
-    MYSQL_PASSWORD: app_password_123
+  image: 'mysql/mysql-server:8.0'
   ports:
-    - "3307:3306"  # Avoids conflicts with local MySQL
+    - '\${FORWARD_DB_PORT:-3306}:3306'
+  environment:
+    MYSQL_ROOT_PASSWORD: '\${DB_PASSWORD}'
+    MYSQL_ROOT_HOST: '%'
+    MYSQL_DATABASE: '\${DB_DATABASE}'
+    MYSQL_USER: '\${DB_USERNAME}'
+    MYSQL_PASSWORD: '\${DB_PASSWORD}'
+    MYSQL_ALLOW_EMPTY_PASSWORD: 1
   volumes:
-    - mysql_data:/var/lib/mysql
-  command: --default-authentication-plugin=mysql_native_password
+    - 'app-mysql:/var/lib/mysql'
+  networks:
+    - app-net
   healthcheck:
-    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    interval: 30s
-    timeout: 10s
-    retries: 3`}
+    test: ['CMD', 'mysqladmin', 'ping', '-p\${DB_PASSWORD}']
+    retries: 10
+    interval: 5s
+    timeout: 5s
+    start_period: 5s`}
               language="yaml"
+              title="docker-compose.yml"
             />
+
             <div className="mt-3 p-3 bg-muted rounded-lg">
               <p className="text-sm">
-                <strong>Connection String:</strong> <code>mysql://app_user:app_password_123@localhost:3307/my_awesome_app</code>
+                <strong>Connection String:</strong>{" "}
+                <code>
+                  mysql://app_user:app_password_123@localhost:3307/my_awesome_app
+                </code>
               </p>
             </div>
           </div>
@@ -265,29 +298,38 @@ networks:
           <div className="docs-card">
             <h3 className="font-semibold mb-3">MongoDB Configuration</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              MongoDB setup with authentication and replica set configuration for development.
+              MongoDB setup with authentication and replica set configuration
+              for development.
             </p>
             <CodeBlock
               code={`db:
-  image: mongo:7
-  environment:
-    MONGO_INITDB_ROOT_USERNAME: admin
-    MONGO_INITDB_ROOT_PASSWORD: admin_password_123
-    MONGO_INITDB_DATABASE: my_awesome_app
+  image: 'mongo:7'
   ports:
-    - "27018:27017"  # Avoids conflicts with local MongoDB
+    - '\${FORWARD_DB_PORT:-27017}:27017'
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: '\${DB_USERNAME}'
+    MONGO_INITDB_ROOT_PASSWORD: '\${DB_PASSWORD}'
+    MONGO_INITDB_DATABASE: '\${DB_DATABASE}'
   volumes:
-    - mongo_data:/data/db
+    - 'app-mongo:/data/db'
+  networks:
+    - app-net
   healthcheck:
-    test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/my_awesome_app --quiet
-    interval: 30s
-    timeout: 10s
-    retries: 3`}
+    test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/\${DB_DATABASE} --quiet
+    interval: 5s
+    timeout: 5s
+    retries: 10
+    start_period: 5s`}
               language="yaml"
+              title="docker-compose.yml"
             />
+
             <div className="mt-3 p-3 bg-muted rounded-lg">
               <p className="text-sm">
-                <strong>Connection String:</strong> <code>mongodb://admin:admin_password_123@localhost:27018/my_awesome_app?authSource=admin</code>
+                <strong>Connection String:</strong>{" "}
+                <code>
+                  mongodb://admin:admin_password_123@localhost:27018/my_awesome_app?authSource=admin
+                </code>
               </p>
             </div>
           </div>
@@ -297,40 +339,22 @@ networks:
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Application Dockerfile</h2>
         <p className="mb-4">
-          The generated Dockerfile is optimized for development with hot reloading:
+          The generated Dockerfile is optimized for development with hot
+          reloading:
         </p>
-        
+
         <CodeBlock
-          code={`FROM node:18-alpine
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy source code
-COPY . .
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Change ownership
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-# Expose port
-EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
-  CMD curl -f http://localhost:3000/health || exit 1
-
-# Start the application
+          code={`FROM ubuntu:24.04
+ARG NODE_VERSION=24
+WORKDIR /home/app
+RUN apt-get update
+RUN apt install -y curl git \
+    && curl -sLS https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get install -y mongodb-clients \
+    && apt-get -y autoremove \
+    && apt-get -y clean
+RUN npm i -g @nestjs/cli
 CMD ["npm", "run", "start:dev"]`}
           language="dockerfile"
           title="Dockerfile"
@@ -343,12 +367,15 @@ CMD ["npm", "run", "start:dev"]`}
           Environment Configuration
         </h2>
         <p className="mb-4">
-          Docker services are configured through environment variables in your <code className="docs-inline-code">.env</code> files:
+          Docker services are configured through environment variables in your{" "}
+          <code className="docs-inline-code">.env</code> files:
         </p>
 
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold mb-2">Development Environment (.env)</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Development Environment (.env)
+            </h3>
             <CodeBlock
               code={`# Application
 APP_NAME=my-awesome-app
@@ -375,7 +402,9 @@ JWT_EXPIRATION=7d`}
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">Testing Environment (.env.testing)</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Testing Environment (.env.testing)
+            </h3>
             <CodeBlock
               code={`# Application
 NODE_ENV=testing
@@ -413,31 +442,47 @@ REDIS_PORT=6379`}
             </thead>
             <tbody>
               <tr>
-                <td><code>docker-compose up -d</code></td>
+                <td>
+                  <code>docker-compose up -d</code>
+                </td>
                 <td>Start all services in background</td>
               </tr>
               <tr>
-                <td><code>docker-compose logs app</code></td>
+                <td>
+                  <code>docker-compose logs app</code>
+                </td>
                 <td>View application logs</td>
               </tr>
               <tr>
-                <td><code>docker-compose exec app sh</code></td>
+                <td>
+                  <code>docker-compose exec app sh</code>
+                </td>
                 <td>Access application container shell</td>
               </tr>
               <tr>
-                <td><code>docker-compose exec db psql -U app_user -d my_awesome_app</code></td>
+                <td>
+                  <code>
+                    docker-compose exec db psql -U app_user -d my_awesome_app
+                  </code>
+                </td>
                 <td>Access PostgreSQL database</td>
               </tr>
               <tr>
-                <td><code>docker-compose restart app</code></td>
+                <td>
+                  <code>docker-compose restart app</code>
+                </td>
                 <td>Restart application service</td>
               </tr>
               <tr>
-                <td><code>docker-compose down -v</code></td>
+                <td>
+                  <code>docker-compose down -v</code>
+                </td>
                 <td>Stop services and remove volumes</td>
               </tr>
               <tr>
-                <td><code>docker system prune</code></td>
+                <td>
+                  <code>docker system prune</code>
+                </td>
                 <td>Clean up unused Docker resources</td>
               </tr>
             </tbody>
@@ -451,21 +496,24 @@ REDIS_PORT=6379`}
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Security</h3>
             <p className="text-sm text-muted-foreground">
-              Change default passwords and use strong credentials in production environments.
+              Change default passwords and use strong credentials in production
+              environments.
             </p>
           </div>
-          
+
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Data Persistence</h3>
             <p className="text-sm text-muted-foreground">
-              Docker volumes ensure your data persists between container restarts.
+              Docker volumes ensure your data persists between container
+              restarts.
             </p>
           </div>
-          
+
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Health Checks</h3>
             <p className="text-sm text-muted-foreground">
-              All services include health checks to ensure proper startup and monitoring.
+              All services include health checks to ensure proper startup and
+              monitoring.
             </p>
           </div>
         </div>

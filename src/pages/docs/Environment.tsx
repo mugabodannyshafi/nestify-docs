@@ -9,15 +9,17 @@ export default function Environment() {
         Environment Variables
       </h1>
       <p className="text-xl text-muted-foreground mb-8">
-        Comprehensive environment configuration for development, testing, and production environments.
+        Comprehensive environment configuration for development, testing, and
+        production environments.
       </p>
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Overview</h2>
         <p className="mb-4">
-          Nestify generates comprehensive environment configuration files to manage your application settings across different environments:
+          Nestify generates comprehensive environment configuration files to
+          manage your application settings across different environments:
         </p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">.env</h3>
@@ -25,14 +27,14 @@ export default function Environment() {
               Development environment configuration
             </p>
           </div>
-          
+
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">.env.testing</h3>
             <p className="text-sm text-muted-foreground">
               Testing environment with isolated services
             </p>
           </div>
-          
+
           <div className="docs-feature-item">
             <h3 className="font-semibold mb-2">.env.example</h3>
             <p className="text-sm text-muted-foreground">
@@ -48,161 +50,120 @@ export default function Environment() {
           Development Environment (.env)
         </h2>
         <p className="mb-4">
-          The main environment file for development contains all necessary configuration:
+          The main environment file for development contains all necessary
+          configuration:
         </p>
 
         <CodeBlock
-          code={`# Application Configuration
+          code={`# Application
 APP_NAME=my-awesome-app
 APP_PORT=3000
 NODE_ENV=development
 
-# API Configuration
-API_PREFIX=api
-API_VERSION=1
-
-# Database Configuration
-DB_TYPE=postgres
+# Database - MySQL
+DB_TYPE=mysql
 DB_HOST=db
-DB_PORT=5432
-DB_DATABASE=my_awesome_app
+DB_PORT=3306
+DB_DATABASE=my-awesome-app
 DB_USERNAME=app_user
 DB_PASSWORD=app_password_123
 
-# Redis Configuration
+# Database Forwarding Ports (for local access)
+FORWARD_DB_PORT=3307
+
+# Redis
 REDIS_HOST=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=
+FORWARD_REDIS_PORT=6380
 
-# Authentication
+# JWT
 JWT_SECRET=your-secret-key-here-change-in-production
 JWT_EXPIRATION=7d
 
-# CORS Configuration
-CORS_ORIGIN=http://localhost:3000
-CORS_CREDENTIALS=true
-
-# Rate Limiting
-RATE_LIMIT_TTL=60
-RATE_LIMIT_LIMIT=100
-
-# File Upload
-MAX_FILE_SIZE=10485760  # 10MB
-UPLOAD_PATH=./uploads
-
-# Email Configuration (if applicable)
-MAIL_HOST=localhost
-MAIL_PORT=587
-MAIL_USER=
-MAIL_PASS=
-MAIL_FROM=noreply@example.com
-
-# External APIs
-EXTERNAL_API_URL=https://api.example.com
-EXTERNAL_API_KEY=your-api-key-here`}
-          language="bash"
+# API
+API_PREFIX=api
+API_VERSION=1`}
+          language="plaintext"
           title=".env"
         />
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Testing Environment (.env.testing)</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Testing Environment (.env.testing)
+        </h2>
         <p className="mb-4">
-          Separate configuration for testing with isolated database and Redis instances:
+          Separate configuration for testing with isolated database and Redis
+          instances:
         </p>
 
         <CodeBlock
-          code={`# Application Configuration
-APP_NAME=my-awesome-app-test
-APP_PORT=3001
+          code={`# Testing Environment
+APP_NAME=my-awesome-app
 NODE_ENV=testing
 
-# API Configuration
-API_PREFIX=api
-API_VERSION=1
-
-# Test Database Configuration
-DB_TYPE=postgres
+# Test Database - MySQL
+DB_TYPE=mysql
 DB_HOST=db-test
-DB_PORT=5432
-DB_DATABASE=my_awesome_app_test
+DB_PORT=3306
+DB_DATABASE=my-awesome-app_test
 DB_USERNAME=app_user
 DB_PASSWORD=app_password_123
 
-# Test Redis Configuration
+# Test Redis
 REDIS_HOST=redis-test
 REDIS_PORT=6379
-REDIS_PASSWORD=
 
-# Authentication (less secure for testing)
-JWT_SECRET=test-secret-key-not-for-production
-JWT_EXPIRATION=1h
+# JWT for testing
+JWT_SECRET=test-secret-key
+JWT_EXPIRATION=1d
 
-# Disable external services in tests
-MAIL_HOST=
-EXTERNAL_API_URL=http://localhost:3001/mock-api
-EXTERNAL_API_KEY=test-key
-
-# Test-specific settings
-LOG_LEVEL=error
-RATE_LIMIT_TTL=60
-RATE_LIMIT_LIMIT=1000`}
-          language="bash"
+# API
+API_PREFIX=api
+API_VERSION=1`}
+          language="plaintext"
           title=".env.testing"
         />
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Example Template (.env.example)</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Example Template (.env.example)
+        </h2>
         <p className="mb-4">
-          The template file shows all required variables without sensitive values:
+          The template file shows all required variables without sensitive
+          values:
         </p>
 
         <CodeBlock
-          code={`# Application Configuration
+          code={`# Application
 APP_NAME=my-awesome-app
 APP_PORT=3000
 NODE_ENV=development
 
-# API Configuration
-API_PREFIX=api
-API_VERSION=1
+# Database - MySQL
+DB_TYPE=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=my-awesome-app
+DB_USERNAME=app_user
+DB_PASSWORD=app_password_123
 
-# Database Configuration
-DB_TYPE=postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=my_awesome_app
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+# Database Forwarding Ports (for local access)
+FORWARD_DB_PORT=3307
 
-# Redis Configuration
-REDIS_HOST=localhost
+# Redis
+REDIS_HOST=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=
+FORWARD_REDIS_PORT=6380
 
-# Authentication
-JWT_SECRET=your-jwt-secret-change-this
+# JWT
+JWT_SECRET=your-secret-key-here-change-in-production
 JWT_EXPIRATION=7d
 
-# CORS Configuration
-CORS_ORIGIN=http://localhost:3000
-CORS_CREDENTIALS=true
-
-# Rate Limiting
-RATE_LIMIT_TTL=60
-RATE_LIMIT_LIMIT=100
-
-# Email Configuration
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USER=your-email-user
-MAIL_PASS=your-email-password
-MAIL_FROM=noreply@yourdomain.com
-
-# External APIs
-EXTERNAL_API_URL=https://api.example.com
-EXTERNAL_API_KEY=your-external-api-key`}
+# API
+API_PREFIX=api
+API_VERSION=1`}
           language="bash"
           title=".env.example"
         />
@@ -221,16 +182,14 @@ EXTERNAL_API_KEY=your-external-api-key`}
           <div className="docs-card">
             <h3 className="font-semibold mb-3">PostgreSQL Configuration</h3>
             <CodeBlock
-              code={`# PostgreSQL Database
+              code={`# Database - PostgreSQL
 DB_TYPE=postgres
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=5432
-DB_DATABASE=my_awesome_app
+DB_DATABASE=postgres
 DB_USERNAME=app_user
-DB_PASSWORD=your_secure_password
-DB_SCHEMA=public
-DB_SYNC=false  # Set to true only in development
-DB_LOGGING=false`}
+DB_PASSWORD=app_password_123
+`}
               language="bash"
             />
           </div>
@@ -238,16 +197,13 @@ DB_LOGGING=false`}
           <div className="docs-card">
             <h3 className="font-semibold mb-3">MySQL Configuration</h3>
             <CodeBlock
-              code={`# MySQL Database
+              code={`# Database - MySQL
 DB_TYPE=mysql
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=3306
-DB_DATABASE=my_awesome_app
+DB_DATABASE=my-awesome-app
 DB_USERNAME=app_user
-DB_PASSWORD=your_secure_password
-DB_CHARSET=utf8mb4
-DB_SYNC=false
-DB_LOGGING=false`}
+DB_PASSWORD=app_password_123`}
               language="bash"
             />
           </div>
@@ -255,14 +211,14 @@ DB_LOGGING=false`}
           <div className="docs-card">
             <h3 className="font-semibold mb-3">MongoDB Configuration</h3>
             <CodeBlock
-              code={`# MongoDB Database
+              code={`# Database - MongoDB
 DB_TYPE=mongodb
-DB_URL=mongodb://localhost:27017/my_awesome_app
+DB_HOST=db
+DB_PORT=27017
+DB_DATABASE=mongo
 DB_USERNAME=app_user
-DB_PASSWORD=your_secure_password
-DB_AUTH_SOURCE=admin
-DB_REPLICA_SET=
-DB_SSL=false`}
+DB_PASSWORD=app_password_123
+DATABASE_URL=mongodb://app_user:app_password_123@db:27017/mongo?authSource=admin`}
               language="bash"
             />
           </div>
@@ -270,9 +226,12 @@ DB_SSL=false`}
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Using Environment Variables</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Using Environment Variables
+        </h2>
         <p className="mb-4">
-          Access environment variables in your NestJS application using the ConfigService:
+          Access environment variables in your NestJS application using the
+          ConfigService:
         </p>
 
         <div className="space-y-4">
@@ -343,7 +302,7 @@ export class DatabaseService {
           <Lock className="w-6 h-6 mr-2" />
           Security Best Practices
         </h2>
-        
+
         <div className="space-y-4">
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Sensitive Data</h3>
@@ -351,7 +310,9 @@ export class DatabaseService {
               Never commit sensitive data to version control:
             </p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Add <code>.env</code> to your <code>.gitignore</code> file</li>
+              <li>
+                Add <code>.env</code> to your <code>.gitignore</code> file
+              </li>
               <li>Use strong, unique passwords</li>
               <li>Generate secure JWT secrets</li>
               <li>Use different credentials for each environment</li>
@@ -373,21 +334,25 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`}
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Environment-Specific Values</h3>
             <p className="text-sm text-muted-foreground">
-              Use different values for development, testing, and production environments.
+              Use different values for development, testing, and production
+              environments.
             </p>
           </div>
 
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Validation</h3>
             <p className="text-sm text-muted-foreground">
-              Always validate environment variables using Joi or class-validator to catch configuration errors early.
+              Always validate environment variables using Joi or class-validator
+              to catch configuration errors early.
             </p>
           </div>
         </div>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Production Configuration</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Production Configuration
+        </h2>
         <p className="mb-4">
           Important considerations for production environments:
         </p>
@@ -396,7 +361,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`}
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Production Checklist</h3>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Set <code>NODE_ENV=production</code></li>
+              <li>
+                Set <code>NODE_ENV=production</code>
+              </li>
               <li>Use secure, unique passwords</li>
               <li>Enable SSL/TLS for database connections</li>
               <li>Configure proper CORS origins</li>
@@ -406,60 +373,36 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`}
             </ul>
           </div>
 
-          <div className="docs-card">
-            <h3 className="font-semibold mb-2">Production Example</h3>
-            <CodeBlock
-              code={`# Production Environment
-NODE_ENV=production
-APP_PORT=3000
-
-# Database with SSL
-DB_HOST=your-production-db-host
-DB_SSL=true
-DB_SYNC=false
-DB_LOGGING=false
-
-# Redis with authentication
-REDIS_HOST=your-production-redis-host
-REDIS_PASSWORD=your-secure-redis-password
-
-# Secure JWT
-JWT_SECRET=your-very-secure-production-jwt-secret
-JWT_EXPIRATION=15m
-
-# Proper CORS
-CORS_ORIGIN=https://yourdomain.com
-CORS_CREDENTIALS=true
-
-# Strict rate limiting
-RATE_LIMIT_TTL=60
-RATE_LIMIT_LIMIT=60
-
-# Production logging
-LOG_LEVEL=warn`}
-              language="bash"
-            />
-          </div>
         </div>
       </div>
 
       <div className="border-t border-border pt-8">
-        <h2 className="text-2xl font-semibold mb-4">Environment File Management</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          Environment File Management
+        </h2>
         <div className="space-y-4">
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Setup Process</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm">
-              <li>Copy <code>.env.example</code> to <code>.env</code></li>
+              <li>
+                Copy <code>.env.example</code> to <code>.env</code>
+              </li>
               <li>Update values for your local environment</li>
-              <li>Never commit <code>.env</code> files to version control</li>
-              <li>Use deployment tools to manage production environment variables</li>
+              <li>
+                Never commit <code>.env</code> files to version control
+              </li>
+              <li>
+                Use deployment tools to manage production environment variables
+              </li>
             </ol>
           </div>
-          
+
           <div className="docs-card">
             <h3 className="font-semibold mb-2">Loading Order</h3>
             <p className="text-sm text-muted-foreground">
-              Nestify loads environment files in this order: <code>.env.local</code> → <code>.env</code> → system environment variables
+              Nestify loads environment files in this order:{" "}
+              <code>.env.local</code> → <code>.env</code> → system environment
+              variables
             </p>
           </div>
         </div>
