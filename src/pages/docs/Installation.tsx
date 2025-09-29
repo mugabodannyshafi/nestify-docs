@@ -22,7 +22,7 @@ export default function Installation() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Using npm</h3>
             <CodeBlock
-              code="npm install -g @mugabodannyshafi/nestify"
+              code="npm install -g nestify-cli"
               language="bash"
             />
           </div>
@@ -30,7 +30,7 @@ export default function Installation() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Using Yarn</h3>
             <CodeBlock
-              code="yarn global add @mugabodannyshafi/nestify"
+              code="yarn global add nestify-cli"
               language="bash"
             />
           </div>
@@ -38,7 +38,7 @@ export default function Installation() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Using pnpm</h3>
             <CodeBlock
-              code="pnpm add -g @mugabodannyshafi/nestify"
+              code="pnpm add -g nestify-cli"
               language="bash"
             />
           </div>
@@ -96,7 +96,7 @@ export default function Installation() {
               If you prefer not to install Nestify globally, you can use npx to run it directly:
             </p>
             <CodeBlock
-              code="npx @mugabodannyshafi/nestify new my-project"
+              code="npx nestify-cli new my-project"
               language="bash"
             />
             <p className="mt-2 text-sm text-muted-foreground">
@@ -110,7 +110,7 @@ export default function Installation() {
               To install a specific version of Nestify:
             </p>
             <CodeBlock
-              code="npm install -g @mugabodannyshafi/nestify@1.0.0"
+              code="npm install -g nestify-cli@1.0.0"
               language="bash"
             />
           </div>
@@ -140,7 +140,7 @@ nvm install node
 nvm use node
 
 # Now install Nestify
-npm install -g @mugabodannyshafi/nestify`}
+npm install -g nestify-cli`}
               language="bash"
             />
           </div>
@@ -153,7 +153,7 @@ npm install -g @mugabodannyshafi/nestify`}
             <ol className="list-decimal list-inside space-y-1">
               <li>Restart your terminal</li>
               <li>Check your PATH environment variable</li>
-              <li>Verify the installation location with <code className="docs-inline-code">npm list -g @mugabodannyshafi/nestify</code></li>
+              <li>Verify the installation location with <code className="docs-inline-code">npm list -g nestify-cli</code></li>
             </ol>
           </div>
         </div>

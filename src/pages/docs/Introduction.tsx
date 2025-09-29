@@ -16,7 +16,7 @@ export default function Introduction() {
 
         <div className="flex flex-wrap gap-2 mb-8">
           <a
-            href="https://www.npmjs.com/package/@mugabodannyshafi/nestify"
+            href="https://www.npmjs.com/package/nestify-cli"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
@@ -59,7 +59,7 @@ export default function Introduction() {
         </p>
         <CodeBlock
           code={`# Install Nestify globally
-npm install -g @mugabodannyshafi/nestify
+npm install -g nestify-cli
 
 # Create a new project
 nestify new my-awesome-app
