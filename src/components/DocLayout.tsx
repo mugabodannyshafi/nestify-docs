@@ -10,7 +10,7 @@ export function DocLayout() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://registry.npmjs.org/@mugabodannyshafi/nestify/latest")
+    fetch("https://registry.npmjs.org/nestify-cli/latest")
       .then((res) => res.json())
       .then((data) => {
         setVersion(data.version);
@@ -75,7 +75,7 @@ export function DocLayout() {
                 <span className="sr-only">GitHub</span>
               </a>
               <a
-                href="https://www.npmjs.com/package/@mugabodannyshafi/nestify"
+                href="https://www.npmjs.com/package/nestify-cli"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground group relative"
